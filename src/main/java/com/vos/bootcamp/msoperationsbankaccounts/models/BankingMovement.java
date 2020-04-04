@@ -38,6 +38,9 @@ public class BankingMovement {
   @DBRef
   private BankingMovementType bankingMovementType;
 
+  @DBRef
+  private BankingMovementCommission bankingMovementCommission;
+
   private Date movementDate;
 
 

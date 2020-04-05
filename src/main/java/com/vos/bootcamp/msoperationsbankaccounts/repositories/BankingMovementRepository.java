@@ -8,6 +8,6 @@ import java.util.Date;
 
 public interface BankingMovementRepository extends ReactiveMongoRepository<BankingMovement, String> {
 
-  public Flux<BankingMovement> findByMovementDateAndAccountNumberOrigin(Date date, String accountNumber);
+  public Flux<BankingMovement> findByMovementDateAndAccountNumber(Date date, String accountNumber);
 
 }

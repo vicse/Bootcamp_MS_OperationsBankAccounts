@@ -24,9 +24,8 @@ public class BankingMovement {
   private String id;
 
   @NotBlank(message = "'accountNumberOrigin' is required")
-  private String accountNumberOrigin;
+  private String accountNumber;
 
-  @NotBlank(message = "'accountNumberDestination is required")
   private String accountNumberDestination;
 
   @NotBlank(message = "'numDocOwner' is required")

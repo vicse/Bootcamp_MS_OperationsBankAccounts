@@ -30,7 +30,7 @@ public class BankingMovementServiceImpl implements BankingMovementService {
 
   @Override
   public Flux<BankingMovement> findByAccountNumberAndMovementDate(String accountNumber, Date date) {
-    return movementRepository.findByMovementDateAndAccountNumberOrigin(date, accountNumber);
+    return movementRepository.findByMovementDateAndAccountNumber(date, accountNumber);
   }
 
   @Override
@@ -79,10 +79,10 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   @Override
   public Mono<BankingMovement> deposit(BankingMovement bankingMovement) {
 
-    Mono<Boolean> validateBankAccount = this.validateBankAccount(bankingMovement.getAccountNumberOrigin(),
+    Mono<Boolean> validateBankAccount = this.validateBankAccount(bankingMovement.getAccountNumber(),
             bankingMovement.getNumDocOwner());
 
-    Mono<BankAccount> bankAccountMono = this.findBankAccountByAccountNumber(bankingMovement.getAccountNumberOrigin());
+    Mono<BankAccount> bankAccountMono = this.findBankAccountByAccountNumber(bankingMovement.getAccountNumber());
 
 
     return validateBankAccount.flatMap(resp -> {
@@ -104,12 +104,12 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   }
 
   @Override
-  public Mono<BankingMovement> remove(BankingMovement bankingMovement) {
+  public Mono<BankingMovement> withdraw(BankingMovement bankingMovement) {
 
-    Mono<Boolean> validateBankAccount = this.validateBankAccount(bankingMovement.getAccountNumberOrigin(),
+    Mono<Boolean> validateBankAccount = this.validateBankAccount(bankingMovement.getAccountNumber(),
             bankingMovement.getNumDocOwner());
 
-    Mono<BankAccount> bankAccountMono = this.findBankAccountByAccountNumber(bankingMovement.getAccountNumberOrigin());
+    Mono<BankAccount> bankAccountMono = this.findBankAccountByAccountNumber(bankingMovement.getAccountNumber());
 
     return validateBankAccount.flatMap(resp -> {
 

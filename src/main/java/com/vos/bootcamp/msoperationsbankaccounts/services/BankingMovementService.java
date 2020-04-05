@@ -13,7 +13,7 @@ public interface BankingMovementService extends ICrud<BankingMovement> {
 
   public Mono<BankingMovement> deposit(BankingMovement bankingMovement);
 
-  public Mono<BankingMovement> remove(BankingMovement bankingMovement);
+  public Mono<BankingMovement> withdraw(BankingMovement bankingMovement);
 
   public Mono<BankingMovement> transfer(BankingMovement bankingMovementOrigin,
           BankingMovement bankingMovementDestination);

@@ -2,19 +2,24 @@ package com.vos.bootcamp.msoperationsbankaccounts.controllers;
 
 
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
-import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovementType;
 import com.vos.bootcamp.msoperationsbankaccounts.services.BankingMovementService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.net.URI;
+import javax.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 @RequestMapping("/api/bankingMovements")

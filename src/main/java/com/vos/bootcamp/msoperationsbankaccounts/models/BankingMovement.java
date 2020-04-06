@@ -26,13 +26,10 @@ public class BankingMovement {
   @NotBlank(message = "'accountNumberOrigin' is required")
   private String accountNumber;
 
-  private String accountNumberDestination;
-
   @NotBlank(message = "'numDocOwner' is required")
   private String numDocOwner;
 
   private Double amount;
-
 
   @Valid
   @DBRef

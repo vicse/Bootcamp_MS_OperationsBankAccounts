@@ -60,6 +60,21 @@ public class BankingMovementControllerTest {
   }
 
   @Test
+  void getAllByNumDocCustomer() {
+    BankingMovement expectedBankingMovement = expectedBankingMovements.get(0);
+    when(bankingMovementService.findByNumDocOwner(expectedBankingMovement.getNumDocOwner()))
+            .thenReturn(Flux.fromIterable(expectedBankingMovements));
+
+    client.get()
+            .uri("/numDocCustomer/{numDoc}", expectedBankingMovement.getNumDocOwner())
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBodyList(BankingMovement.class)
+            .isEqualTo(expectedBankingMovements);
+  }
+
+  @Test
   void getBankingMovementById_whenBankingMovementExists_returnCorrectBankingMovement() {
     BankingMovement expectedBankingMovement = expectedBankingMovements.get(0);
     when(bankingMovementService.findById(expectedBankingMovement.getId()))

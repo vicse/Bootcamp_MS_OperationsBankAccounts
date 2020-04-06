@@ -10,4 +10,6 @@ public interface BankingMovementRepository extends ReactiveMongoRepository<Banki
 
   public Flux<BankingMovement> findByMovementDateAndAccountNumber(Date date, String accountNumber);
 
+  public Flux<BankingMovement> findByNumDocOwner(String numDocOwner);
+
 }

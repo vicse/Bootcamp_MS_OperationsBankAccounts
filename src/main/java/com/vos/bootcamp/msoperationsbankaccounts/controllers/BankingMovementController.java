@@ -33,7 +33,7 @@ public class BankingMovementController {
   }
 
   /* =========================================
-    Function to List all Banking Movement Types
+    Function to List all Banking Movements
   =========================================== */
   @GetMapping
   @ApiOperation(value = "List all BankingMovements", notes = "List all BankingMovements of Collections")
@@ -41,8 +41,18 @@ public class BankingMovementController {
     return service.findAll();
   }
 
+  /* =======================================================
+   Function to List all Banking Movements By NumDocCustomer
+  ========================================================== */
+  @GetMapping("/numDocCustomer/{numDoc}")
+  @ApiOperation(value = "List all BankingMovements by NumDocCustomer", notes = "List all BankingMovements ny NumDocCustomer of Collections")
+  public Flux<BankingMovement> getBankingMovementsByNumDocCustomer(@PathVariable String numDoc) {
+    return service.findByNumDocOwner(numDoc)
+            .switchIfEmpty(Mono.error(new Exception("This customer not have banking movements")));
+  }
+
   /* ===============================================
-      Function to obtain a BankingMovementType by id
+      Function to obtain a BankingMovement by id
   ================================================== */
   @GetMapping("/{id}")
   @ApiOperation(value = "Get a Banking Movement", notes = "Get a banking Movement by id")

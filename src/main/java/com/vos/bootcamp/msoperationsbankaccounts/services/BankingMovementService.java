@@ -11,6 +11,8 @@ public interface BankingMovementService extends ICrud<BankingMovement> {
 
   public Flux<BankingMovement> findByAccountNumberAndMovementDate(String accountNumber, Date date);
 
+  public Flux<BankingMovement> findByNumDocOwner(String numDocOwner);
+
   public Mono<BankingMovement> deposit(BankingMovement bankingMovement);
 
   public Mono<BankingMovement> withdraw(BankingMovement bankingMovement);

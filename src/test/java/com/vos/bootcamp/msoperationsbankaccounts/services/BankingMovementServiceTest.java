@@ -59,6 +59,16 @@ public class BankingMovementServiceTest {
     assertResults(actual, bankingMovement1, bankingMovement2, bankingMovement3);
   }
 
+  @Test
+  void getByNumDocOwner() {
+    when(bankingMovementRepository.findByNumDocOwner(bankingMovement1.getNumDocOwner()))
+            .thenReturn(Flux.just(bankingMovement1, bankingMovement2, bankingMovement3));
+
+    Flux<BankingMovement> actual = bankingMovementService.findByNumDocOwner(bankingMovement1.getNumDocOwner());
+
+    assertResults(actual, bankingMovement1, bankingMovement2, bankingMovement3);
+  }
+
   /*@Test
   void getByAccountNumberAndMovementDate() {
     when(bankingMovementRepository.findByMovementDateAndAccountNumber(new Date(), bankingMovement1.getAccountNumber()))

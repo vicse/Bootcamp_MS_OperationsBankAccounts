@@ -34,6 +34,11 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   }
 
   @Override
+  public Flux<BankingMovement> findByNumDocOwner(String numDocOwner) {
+    return movementRepository.findByNumDocOwner(numDocOwner);
+  }
+
+  @Override
   public Mono<Boolean> validateBankAccount(String accountNumber, String numDocOwner) {
 
     Mono<BankAccount> bankAccountMono = bankAccountRepository.findByAccountNumber(accountNumber);

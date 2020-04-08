@@ -2,6 +2,8 @@ package com.vos.bootcamp.msoperationsbankaccounts.controllers;
 
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovementType;
+import com.vos.bootcamp.msoperationsbankaccounts.models.CreditProduct;
+import com.vos.bootcamp.msoperationsbankaccounts.models.CreditProductType;
 import com.vos.bootcamp.msoperationsbankaccounts.services.BankingMovementService;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,12 @@ public class BankingMovementControllerTest {
   private BankingMovementService bankingMovementService;
   private WebTestClient client;
   private List<BankingMovement> expectedBankingMovements;
+
+  private final CreditProductType creditProductType = CreditProductType.builder().id("1").name("CREDITO PERSONAL").build();
+
+  private final CreditProduct creditProduct1 = CreditProduct.builder().id("1").numDocOwner("75772936")
+          .accountNumber("1234-123123-123").creditAmount(1300.00).DebtAmount(1300.0).creditAmountAvailable(1300.0)
+          .creditProductType(creditProductType).build();
 
   private final BankingMovementType bankingMovementType1 = BankingMovementType.builder().id("1").name("RETIRO").codeTypeMovement(100).build();
   private final BankingMovementType bankingMovementType2 = BankingMovementType.builder().id("2").name("DEPOSITO").codeTypeMovement(200).build();
@@ -125,6 +133,22 @@ public class BankingMovementControllerTest {
 
     client.post()
             .uri("/withdraw")
+            .body(Mono.just(expectedBankingMovement), BankingMovement.class)
+            .exchange()
+            .expectStatus()
+            .isCreated()
+            .expectBody(BankingMovement.class)
+            .isEqualTo(expectedBankingMovement);
+  }
+
+  @Test
+  void addBankingMovementByPaymentCreditProduct() {
+    BankingMovement expectedBankingMovement = expectedBankingMovements.get(0);
+    when(bankingMovementService.creditProductPayment(expectedBankingMovement, creditProduct1.getAccountNumber()))
+            .thenReturn(Mono.just(expectedBankingMovement));
+
+    client.post()
+            .uri("/paymentCreditProduct/numberAccount/{numAccount}", creditProduct1.getAccountNumber())
             .body(Mono.just(expectedBankingMovement), BankingMovement.class)
             .exchange()
             .expectStatus()

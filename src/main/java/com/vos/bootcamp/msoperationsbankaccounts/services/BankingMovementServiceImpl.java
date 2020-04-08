@@ -1,16 +1,13 @@
 package com.vos.bootcamp.msoperationsbankaccounts.services;
 
-import com.vos.bootcamp.msoperationsbankaccounts.dto.PaymentCreditProductDTO;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankAccount;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
 import com.vos.bootcamp.msoperationsbankaccounts.models.CreditProduct;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankAccountRepository;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankingMovementRepository;
-import java.util.Date;
-
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.CreditProductRepository;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,7 +20,10 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   private final BankAccountRepository bankAccountRepository;
   private final CreditProductRepository creditProductRepository;
 
-  public BankingMovementServiceImpl(BankingMovementRepository movementRepository, BankAccountRepository bankAccountRepository, CreditProductRepository creditProductRepository) {
+  public BankingMovementServiceImpl(
+          BankingMovementRepository movementRepository,
+          BankAccountRepository bankAccountRepository,
+          CreditProductRepository creditProductRepository) {
     this.movementRepository = movementRepository;
     this.bankAccountRepository = bankAccountRepository;
     this.creditProductRepository = creditProductRepository;
@@ -89,7 +89,8 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   @Override
   public Mono<CreditProduct> updateCreditProductDebtAmount(CreditProduct creditProduct) {
 
-    Mono<Boolean> existsCreditProduct = creditProductRepository.existsByAccountNumber(creditProduct.getAccountNumber());
+    Mono<Boolean> existsCreditProduct = creditProductRepository
+            .existsByAccountNumber(creditProduct.getAccountNumber());
 
     return existsCreditProduct.flatMap(resp -> {
 
@@ -202,7 +203,19 @@ public class BankingMovementServiceImpl implements BankingMovementService {
 
   @Override
   public Mono<BankingMovement> update(String id, BankingMovement bankingMovement) {
-    return null;
+    return movementRepository.findById(id)
+            .flatMap(bankingMovementDB -> {
+
+              if (bankingMovement.getAmount() == null) {
+                bankingMovementDB.setAmount(bankingMovementDB.getAmount());
+              } else {
+                bankingMovementDB.setAmount(bankingMovement.getAmount());
+              }
+
+              return movementRepository.save(bankingMovementDB);
+
+            });
+
   }
 
   @Override

@@ -1,6 +1,5 @@
 package com.vos.bootcamp.msoperationsbankaccounts.services;
 
-import com.vos.bootcamp.msoperationsbankaccounts.dto.PaymentCreditProductDTO;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankAccount;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
 import com.vos.bootcamp.msoperationsbankaccounts.models.CreditProduct;

@@ -23,8 +23,8 @@ public class BankingMovementServiceTest {
 
   private final BankAccountType bankAccountType1 = BankAccountType.builder().name("AHORROS").build();
 
-  private final BankingMovementType bankingMovementType1 = BankingMovementType.builder().name("RETIRO").build();
-  private final BankingMovementType bankingMovementType2 = BankingMovementType.builder().name("DEPOSITO").build();
+  private final BankingMovementType bankingMovementType1 = BankingMovementType.builder().name("RETIRO").codeTypeMovement(100).build();
+  private final BankingMovementType bankingMovementType2 = BankingMovementType.builder().name("DEPOSITO").codeTypeMovement(120).build();
 
   private final BankAccount bankAccount = BankAccount.builder().accountNumber("123-123-1223123")
           .numIdentityDocCustomer("75772936").amountAvailable(1000.0).bankAccountType(bankAccountType1).build();
@@ -35,6 +35,12 @@ public class BankingMovementServiceTest {
           .numDocOwner("75772936").amount(100.0).movementDate(new Date()).bankingMovementType(bankingMovementType2).build();
   private final BankingMovement bankingMovement3 = BankingMovement.builder().accountNumber("123-123-1223123")
           .numDocOwner("75772936").amount(600.0).movementDate(new Date()).bankingMovementType(bankingMovementType1).build();
+
+  private final CreditProductType creditProductType = CreditProductType.builder().name("CREDITO PERSONAL").build();
+
+  private final CreditProduct creditProduct1 = CreditProduct.builder().numDocOwner("75772936")
+          .accountNumber("1234-123123-123").creditAmount(1300.00).DebtAmount(1300.0).creditAmountAvailable(1300.0)
+          .creditProductType(creditProductType).build();
 
 
   @Mock
@@ -123,6 +129,7 @@ public class BankingMovementServiceTest {
     Mono<BankingMovement> actual = bankingMovementService.deposit(bankingMovement1);
 
     assertResults(actual, bankingMovement1);
+
   }
 
   @Test
@@ -168,6 +175,78 @@ public class BankingMovementServiceTest {
   }
 
   @Test
+  void withdrawAndCreateBankingMovement_WhenBankAccountNotExist_returnErrorValidate() {
+    when(bankAccountRepository.existsByAccountNumber(bankAccount.getAccountNumber()))
+            .thenReturn(Mono.just(false));
+    when(bankAccountRepository.findByAccountNumber(bankAccount.getAccountNumber()))
+            .thenReturn(Mono.empty());
+
+    when(bankAccountRepository.updateAmount(bankAccount)).thenReturn(Mono.just(bankAccount));
+    when(bankingMovementRepository.save(bankingMovement1)).thenReturn(Mono.just(bankingMovement1));
+
+    Mono<BankingMovement> actual = bankingMovementService.withdraw(bankingMovement1);
+
+    assertResults(actual, new Exception("Bank Account not exist"));
+  }
+
+  @Test
+  void creditProductPaymentAndCreateBankingMovement() {
+    when(bankAccountRepository.existsByAccountNumber(bankAccount.getAccountNumber()))
+            .thenReturn(Mono.just(true));
+    when(bankAccountRepository.findByAccountNumber(bankAccount.getAccountNumber()))
+            .thenReturn(Mono.just(bankAccount));
+
+    when(bankAccountRepository.updateAmount(bankAccount)).thenReturn(Mono.just(bankAccount));
+
+    when(creditProductRepository.existsByAccountNumber(creditProduct1.getAccountNumber()))
+            .thenReturn(Mono.just(true));
+
+    when(creditProductRepository.findByAccountNumber(creditProduct1.getAccountNumber()))
+            .thenReturn(Mono.just(creditProduct1));
+
+    when(creditProductRepository.updateDebtAmount(creditProduct1)).thenReturn(Mono.just(creditProduct1));
+
+    when(bankingMovementRepository.save(bankingMovement1)).thenReturn(Mono.just(bankingMovement1));
+
+    Mono<BankingMovement> actual = bankingMovementService.creditProductPayment(bankingMovement1, creditProduct1.getAccountNumber());
+
+    assertResults(actual, bankingMovement1);
+
+  }
+
+  @Test
+  void update_whenIdExists_returnUpdatedBankingMovement() {
+    when(bankingMovementRepository.findById(bankingMovement1.getId())).thenReturn(Mono.just(bankingMovement1));
+    when(bankingMovementRepository.save(bankingMovement1)).thenReturn(Mono.just(bankingMovement1));
+
+    Mono<BankingMovement> actual = bankingMovementService.update(bankingMovement1.getId(), bankingMovement1);
+
+    assertResults(actual, bankingMovement1);
+  }
+
+
+  @Test
+  void update_whenDataIsNull_returnUpdatedBankingMovement() {
+    when(bankingMovementRepository.findById(bankingMovement1.getId())).thenReturn(Mono.just(bankingMovement1));
+    when(bankingMovementRepository.save(bankingMovement1)).thenReturn(Mono.just(bankingMovement1));
+
+    bankingMovement1.setAmount(null);
+
+    Mono<BankingMovement> actual = bankingMovementService.update(bankingMovement1.getId(), bankingMovement1);
+
+    assertResults(actual, bankingMovement1);
+  }
+
+  @Test
+  void update_whenIdNotExist_returnEmptyMono() {
+    when(bankingMovementRepository.findById(bankingMovement1.getId())).thenReturn(Mono.empty());
+
+    Mono<BankingMovement> actual = bankingMovementService.update(bankingMovement1.getId(), bankingMovement1);
+
+    assertResults(actual);
+  }
+
+  @Test
   void delete_whenBankingMovementExists_performDeletion() {
     when(bankingMovementRepository.findById(bankingMovement1.getId())).thenReturn(Mono.just(bankingMovement1));
     when(bankingMovementRepository.delete(bankingMovement1)).thenReturn(Mono.empty());
@@ -186,6 +265,33 @@ public class BankingMovementServiceTest {
     assertResults(actual);
   }
 
+  @Test
+  void updateCreditProductDebtAmount_WhenCreditProductExist() {
+    when(creditProductRepository.existsByAccountNumber(creditProduct1.getAccountNumber()))
+            .thenReturn(Mono.just(true));
+
+    when(creditProductRepository.updateDebtAmount(creditProduct1))
+            .thenReturn(Mono.just(creditProduct1));
+
+    Mono<CreditProduct> creditProductMono = bankingMovementService.updateCreditProductDebtAmount(creditProduct1);
+
+    assertResults(creditProductMono, creditProduct1);
+
+  }
+
+  @Test
+  void updateCreditProductDebtAmount_WhenCreditProductNotExist() {
+    when(creditProductRepository.existsByAccountNumber(creditProduct1.getAccountNumber()))
+            .thenReturn(Mono.just(false));
+
+    when(creditProductRepository.updateDebtAmount(creditProduct1))
+            .thenReturn(Mono.just(creditProduct1));
+
+    Mono<CreditProduct> creditProductMono = bankingMovementService.updateCreditProductDebtAmount(creditProduct1);
+
+    assertResultsCreditProduct(creditProductMono, new Exception("This Credit Product not exist"));
+
+  }
 
 
   /* ===============================================
@@ -277,6 +383,13 @@ public class BankingMovementServiceTest {
             .verify();
   }
 
+  private void assertResultsCreditProduct(Publisher<CreditProduct> publisher, Exception exception) {
+    StepVerifier
+            .create(publisher)
+            .expectErrorMessage(exception.getMessage())
+            .verify();
+  }
+
   private void assertResults(Mono<Boolean> actual, boolean b) {
     StepVerifier
             .create(actual)
@@ -290,6 +403,14 @@ public class BankingMovementServiceTest {
             .expectNext(expectedBankingMovement)
             .verifyComplete();
   }
+
+  private void assertResults(Publisher<CreditProduct> publisher, CreditProduct... expectedCreditProduct) {
+    StepVerifier
+            .create(publisher)
+            .expectNext(expectedCreditProduct)
+            .verifyComplete();
+  }
+
 
 
   private void assertResults(Publisher<BankAccount> publisher, BankAccount... expectedBankAccount) {

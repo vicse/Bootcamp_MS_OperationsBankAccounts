@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 public interface BankingMovementService extends ICrud<BankingMovement> {
 
-  public Flux<BankingMovement> findByAccountNumberAndMovementDate(String accountNumber, Date date);
+  public Flux<BankingMovement> findByAccountNumberAndMovementDate(String accountNumber, Date date,Date date1);
 
   public Flux<BankingMovement> findByNumDocOwner(String numDocOwner);
 
@@ -27,6 +27,8 @@ public interface BankingMovementService extends ICrud<BankingMovement> {
   public Mono<BankAccount> findBankAccountByAccountNumber(String accountNumber);
 
   public Mono<CreditProduct> updateCreditProductDebtAmount(CreditProduct creditProduct);
+
+  public Mono<Boolean> chargeCommission(String accountNumber, Date date);
 
 
 

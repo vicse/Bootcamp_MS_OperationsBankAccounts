@@ -8,7 +8,7 @@ import java.util.Date;
 
 public interface BankingMovementRepository extends ReactiveMongoRepository<BankingMovement, String> {
 
-  public Flux<BankingMovement> findByMovementDateAndAccountNumber(Date date, String accountNumber);
+  public Flux<BankingMovement> findByMovementDateIsBetweenAndAccountNumber(Date date, Date date2, String accountNumber);
 
   public Flux<BankingMovement> findByNumDocOwner(String numDocOwner);
 

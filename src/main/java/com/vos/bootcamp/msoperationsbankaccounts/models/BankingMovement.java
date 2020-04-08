@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 @Document(collection = "ms_bankingMovements")
@@ -35,9 +37,7 @@ public class BankingMovement {
   @DBRef
   private BankingMovementType bankingMovementType;
 
-  @DBRef
-  private BankingMovementCommission bankingMovementCommission;
-
+  @DateTimeFormat
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Lima")
   private Date movementDate;
 

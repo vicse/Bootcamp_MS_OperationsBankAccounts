@@ -6,7 +6,10 @@ import com.vos.bootcamp.msoperationsbankaccounts.services.BankingMovementService
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.net.URI;
+import java.util.Date;
 import javax.validation.Valid;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -62,6 +65,18 @@ public class BankingMovementController {
                     .notFound()
                     .build()
             );
+  }
+
+  /* =============================================================
+    Function to obtain a BankingMovement by accountNumber and Date
+  ================================================================ */
+  @GetMapping("/{numberAccount}/date/{date}/{date2}")
+  @ApiOperation(value = "Get a Banking Movement", notes = "Get a banking Movement by id")
+  public Flux<BankingMovement> getByAccountNumberAndDateBankingMovement(
+          @PathVariable String numberAccount,
+          @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+          @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date date2) {
+    return service.findByAccountNumberAndMovementDate(numberAccount, date, date2);
   }
 
   /* ===============================================

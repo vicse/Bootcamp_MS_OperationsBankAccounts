@@ -62,4 +62,14 @@ public class BankingMovementCommissionsServiceImpl implements BankingMovementCom
         .then(Mono.just(bankingMovementCommission))
       );
   }
+
+  @Override
+  public Flux<BankingMovementCommission> findByAccountNumberAndRangeCommissionDate(String accountNumber, Date date, Date date1) {
+    return repository.findByCommissionDateIsBetweenAndAccountNumberOrigin(date, date1, accountNumber);
+  }
+
+  @Override
+  public Flux<BankingMovementCommission> findByRangeCommissionDate(Date date, Date date1) {
+    return repository.findByCommissionDateIsBetween(date, date1);
+  }
 }

@@ -1,6 +1,7 @@
 package com.vos.bootcamp.msoperationsbankaccounts.controllers;
 
 
+import com.vos.bootcamp.msoperationsbankaccounts.dto.PaymentCreditProductDTO;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
 import com.vos.bootcamp.msoperationsbankaccounts.services.BankingMovementService;
 import io.swagger.annotations.Api;
@@ -88,6 +89,23 @@ public class BankingMovementController {
   public Mono<ResponseEntity<BankingMovement>> createBankingMovementByWithdraw(
           @Valid @RequestBody BankingMovement bankingMovement) {
     return service.withdraw(bankingMovement)
+            .map(bankingMovementDB -> ResponseEntity
+                    .created(URI.create("/api/bankingMovements/".concat(bankingMovementDB.getId())))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(bankingMovementDB)
+            );
+  }
+
+  /* =============================================================
+    Function to create banking Movement by Payment Credit Product
+  ================================================================ */
+  @PostMapping("/paymentCreditProduct/numberAccount/{numAccount}")
+  @ApiOperation(value = "Create Banking Movement by payment credit Product", notes =
+          "Create BankingMovement by payment credit Product, check the model please")
+  public Mono<ResponseEntity<BankingMovement>> createBankingMovementByPaymentCreditProduct(
+          @PathVariable String numAccount,
+          @Valid @RequestBody BankingMovement bankingMovement) {
+    return service.creditProductPayment(bankingMovement, numAccount)
             .map(bankingMovementDB -> ResponseEntity
                     .created(URI.create("/api/bankingMovements/".concat(bankingMovementDB.getId())))
                     .contentType(MediaType.APPLICATION_JSON)

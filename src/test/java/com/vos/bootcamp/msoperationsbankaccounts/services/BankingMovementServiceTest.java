@@ -3,6 +3,7 @@ package com.vos.bootcamp.msoperationsbankaccounts.services;
 import com.vos.bootcamp.msoperationsbankaccounts.models.*;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankAccountRepository;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankingMovementRepository;
+import com.vos.bootcamp.msoperationsbankaccounts.repositories.CreditProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +43,14 @@ public class BankingMovementServiceTest {
   @Mock
   private BankAccountRepository bankAccountRepository;
 
+  @Mock
+  private CreditProductRepository creditProductRepository;
+
   private BankingMovementService bankingMovementService;
 
   @BeforeEach
   void SetUp(){
-    bankingMovementService = new BankingMovementServiceImpl(bankingMovementRepository, bankAccountRepository) {
+    bankingMovementService = new BankingMovementServiceImpl(bankingMovementRepository, bankAccountRepository, creditProductRepository) {
     };
   }
 

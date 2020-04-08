@@ -1,12 +1,16 @@
 package com.vos.bootcamp.msoperationsbankaccounts.services;
 
+import com.vos.bootcamp.msoperationsbankaccounts.dto.PaymentCreditProductDTO;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankAccount;
 import com.vos.bootcamp.msoperationsbankaccounts.models.BankingMovement;
+import com.vos.bootcamp.msoperationsbankaccounts.models.CreditProduct;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankAccountRepository;
 import com.vos.bootcamp.msoperationsbankaccounts.repositories.BankingMovementRepository;
 import java.util.Date;
 
+import com.vos.bootcamp.msoperationsbankaccounts.repositories.CreditProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,10 +21,12 @@ public class BankingMovementServiceImpl implements BankingMovementService {
 
   private final BankingMovementRepository movementRepository;
   private final BankAccountRepository bankAccountRepository;
+  private final CreditProductRepository creditProductRepository;
 
-  public BankingMovementServiceImpl(BankingMovementRepository movementRepository,BankAccountRepository bankAccountRepository) {
+  public BankingMovementServiceImpl(BankingMovementRepository movementRepository, BankAccountRepository bankAccountRepository, CreditProductRepository creditProductRepository) {
     this.movementRepository = movementRepository;
     this.bankAccountRepository = bankAccountRepository;
+    this.creditProductRepository = creditProductRepository;
   }
 
   @Override
@@ -80,6 +86,23 @@ public class BankingMovementServiceImpl implements BankingMovementService {
     return bankAccountRepository.findByAccountNumber(accountNumber);
   }
 
+  @Override
+  public Mono<CreditProduct> updateCreditProductDebtAmount(CreditProduct creditProduct) {
+
+    Mono<Boolean> existsCreditProduct = creditProductRepository.existsByAccountNumber(creditProduct.getAccountNumber());
+
+    return existsCreditProduct.flatMap(resp -> {
+
+      if (resp) {
+        return creditProductRepository.updateDebtAmount(creditProduct);
+      } else {
+        return Mono.error(new Exception("This Credit Product not exist"));
+      }
+
+    });
+
+  }
+
 
   @Override
   public Mono<BankingMovement> deposit(BankingMovement bankingMovement) {
@@ -137,9 +160,34 @@ public class BankingMovementServiceImpl implements BankingMovementService {
   }
 
   @Override
-  public Mono<BankingMovement> transfer(BankingMovement bankingMovementOrigin,
-                                              BankingMovement bankingMovementDestination) {
-    return null;
+  public Mono<BankingMovement> creditProductPayment(BankingMovement bankingMovement, String numAccountProductCredit) {
+
+    Mono<Boolean> validateBankAccount = this.validateBankAccount(bankingMovement.getAccountNumber(),
+            bankingMovement.getNumDocOwner());
+
+    Mono<BankAccount> bankAccountMono = this.findBankAccountByAccountNumber(bankingMovement.getAccountNumber());
+
+    Mono<CreditProduct> creditProductMono = creditProductRepository.findByAccountNumber(numAccountProductCredit);
+
+    return validateBankAccount.flatMap(resp -> {
+
+      if (resp) {
+        bankingMovement.setMovementDate(new Date());
+        return bankAccountMono.flatMap(bankAccount -> {
+
+          bankAccount.setAmountAvailable(bankAccount.getAmountAvailable() - bankingMovement.getAmount());
+          return this.updateBankAccountAmount(bankAccount)
+                  .then(creditProductMono.flatMap(creditProduct -> {
+                    creditProduct.setDebtAmount(creditProduct.getDebtAmount() - bankingMovement.getAmount());
+                    return this.updateCreditProductDebtAmount(creditProduct);
+                  }))
+                  .then(movementRepository.save(bankingMovement));
+        });
+      } else {
+        return Mono.error(new Exception("Error to validate bank Account"));
+      }
+
+    });
   }
 
   @Override
